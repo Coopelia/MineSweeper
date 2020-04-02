@@ -1,2 +1,0 @@
-D:\VSprojects\MInesSweeper\Debug\MInesSweeper.exe
-D:\VSprojects\MInesSweeper\Debug\MInesSweeper.pdb

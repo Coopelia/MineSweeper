@@ -49,6 +49,10 @@ void Grid::show()
 		this->s.setTexture(t);
 		this->s.setTextureRect(IntRect(11 * this->sizeX, 0, this->sizeX, this->sizeY));
 		break;
+	case WEN:
+		this->s.setTexture(t);
+		this->s.setTextureRect(IntRect(12 * this->sizeX, 0, this->sizeX, this->sizeY));
+		break;
 	default:
 		break;
 	}

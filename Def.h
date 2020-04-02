@@ -17,4 +17,4 @@ extern class Menu;
 extern class StartScene;
 extern class GameScene;
 extern class Game;
-enum State{REV = 0,FRO,FLA};
+enum State{REV = 0,FRO,FLA,WEN};

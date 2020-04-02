@@ -120,6 +120,7 @@ void Game::GameOver()
 	{
 		if (!isOvered)
 		{
+			sPass.setVolume(vol);
 			sPass.play();
 			game_scene.bgm.stop();
 			isOvered = true;
@@ -130,6 +131,7 @@ void Game::GameOver()
 	{
 		if (!isOvered)
 		{
+			sBoom.setVolume(vol);
 			sBoom.play();
 			game_scene.bgm.stop();
 			isOvered = true;
@@ -327,14 +329,14 @@ void Game::Input_game_scene(Event& e)
 						{
 							int m, n;
 							game_scene.grid[i][j].sta = FRO;
-							game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][j].sta = game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][j].sta != FLA ? FRO : FLA;
-							game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][j].sta = game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][j].sta != FLA ? FRO : FLA;
-							game_scene.grid[i][n = (j - 1) < 0 ? 0 : (j - 1)].sta = game_scene.grid[i][n = (j - 1) < 0 ? 0 : (j - 1)].sta != FLA ? FRO : FLA;
-							game_scene.grid[i][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta = game_scene.grid[i][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta != FLA ? FRO : FLA;
-							game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][n = (j - 1) < 0 ? 0 : (j - 1)].sta = game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][n = (j - 1) < 0 ? 0 : (j - 1)].sta != FLA ? FRO : FLA;
-							game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][n = (j - 1) < 0 ? 0 : (j - 1)].sta = game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][n = (j - 1) < 0 ? 0 : (j - 1)].sta != FLA ? FRO : FLA;
-							game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta = game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta != FLA ? FRO : FLA;
-							game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta = game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta != FLA ? FRO : FLA;
+							game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][j].sta = game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][j].sta == REV ? FRO : game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][j].sta;
+							game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][j].sta = game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][j].sta == REV ? FRO : game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][j].sta;
+							game_scene.grid[i][n = (j - 1) < 0 ? 0 : (j - 1)].sta = game_scene.grid[i][n = (j - 1) < 0 ? 0 : (j - 1)].sta == REV ? FRO : game_scene.grid[i][n = (j - 1) < 0 ? 0 : (j - 1)].sta;
+							game_scene.grid[i][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta = game_scene.grid[i][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta == REV ? FRO : game_scene.grid[i][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta;
+							game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][n = (j - 1) < 0 ? 0 : (j - 1)].sta = game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][n = (j - 1) < 0 ? 0 : (j - 1)].sta == REV ? FRO : game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][n = (j - 1) < 0 ? 0 : (j - 1)].sta;
+							game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][n = (j - 1) < 0 ? 0 : (j - 1)].sta = game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][n = (j - 1) < 0 ? 0 : (j - 1)].sta == REV ? FRO : game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][n = (j - 1) < 0 ? 0 : (j - 1)].sta;
+							game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta = game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta == REV ? FRO : game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta;
+							game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta = game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta == REV ? FRO : game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta;
 						}
 						game_scene.grid[i][j].isClickOnce = false;
 						this->mouse_timer = 0;
@@ -349,9 +351,11 @@ void Game::Input_game_scene(Event& e)
 					}
 					else if (game_scene.grid[i][j].sta == FLA)
 					{
-						game_scene.grid[i][j].sta = REV;
+						game_scene.grid[i][j].sta = WEN;
 						this->mine_rest++;
 					}
+					else if (game_scene.grid[i][j].sta == WEN)
+						game_scene.grid[i][j].sta = REV;
 				}
 			}
 		}
@@ -473,6 +477,7 @@ void Game::Run()
 			if (!game_scene.isRunning)
 			{
 				MineState = 0;
+				mine_rest = mine_num;
 				start_scene.scene_close();
 				game_scene.gameStart();
 				game_scene.myTimer.start();

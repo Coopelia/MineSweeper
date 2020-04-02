@@ -13,7 +13,6 @@ public:
 	void setTextureID(int id);
 	bool LeftPreBehRel;
 	bool RightPreBehRel;
-	bool DLeftPreBehRel;
 	bool isMineSetted;
 	bool isClickOnce;
 	bool onClickLeft(Event& e);

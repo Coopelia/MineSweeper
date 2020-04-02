@@ -10,7 +10,6 @@ Grid::Grid()
 	this->texture_id = 0;
 	this->LeftPreBehRel = false;
 	this->RightPreBehRel = false;
-	this->DLeftPreBehRel = false;
 	this->isMineSetted = false;
 	this->isClickOnce = false;
 	this->sta = REV;
@@ -107,13 +106,8 @@ bool Grid::onClickDouble(Event& e)
 	FloatRect box = s.getGlobalBounds();
 	if (Mouse::getPosition(*app).x >= box.left && Mouse::getPosition(*app).x <= (box.left + box.width) && Mouse::getPosition(*app).y >= box.top && Mouse::getPosition(*app).y <= (box.top + box.height))
 	{
-		if (e.type == Event::MouseButtonPressed && e.mouseButton.button == Mouse::Left)
-			this->DLeftPreBehRel = true;
-		if (e.type == Event::MouseButtonReleased && e.mouseButton.button == Mouse::Left && this->DLeftPreBehRel)
-		{
-			this->DLeftPreBehRel = false;
+		if (e.type==Event::MouseButtonPressed && e.mouseButton.button == Mouse::Left)
 			return true;
-		}
 		else
 			return false;
 	}

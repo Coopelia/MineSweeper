@@ -1,14 +1,14 @@
 #include"game.h"
 
-Game::Game(RenderWindow* app)
+Game::Game()
 {
-	this->mine_num = 10;
-	this->mine_rest = 10;
-	this->mine_counter = 0;
-	this->px = -1;
+	this->mine_num = 10; 
+	this->mine_rest = 10; 
+	this->mine_counter = 0; 
+	this->px = -1; 
 	this->py = -1;
-	this->mouse_timer = 0;
-	this->app = app;
+	this->mouse_timer = 0; 
+	this->app = new RenderWindow(VideoMode(win_width, win_height), "MineSweeper",Uint32(5));
 	this->bt_ok.app = app;
 	this->bt_restart.app = app;
 	this->game_scene.Initial(app);
@@ -34,20 +34,17 @@ Game::Game(RenderWindow* app)
 	tOver.loadFromFile("data/images/gameover.jpg");
 	bt_ok.setTextrue("data/images/Menu/ok.png");
 	bt_restart.setTextrue("data/images/Menu/re.png");
-	sbBoom.loadFromFile("data/Audios/bomb.wav");
-	sbPass.loadFromFile("data/Audios/pass.wav");
-	sBoom.setBuffer(sbBoom);
-	sBoom.setVolume(vol);
-	sBoom.setLoop(false);
-	sPass.setBuffer(sbPass);
-	sPass.setVolume(vol);
-	sPass.setLoop(false);
 	Input = &Game::Input_start_scene;
 	Draw = &Game::draw_start_scene;
 	(*app).setFramerateLimit(60);
 }
 
-void Game::UpdataGrid(Event& e)
+Game::~Game()
+{
+	delete this->app;
+}
+
+void Game::UpdateGrid(Event& e)
 {
 	if (this->MineState == 2)
 	{
@@ -120,8 +117,7 @@ void Game::GameOver()
 	{
 		if (!isOvered)
 		{
-			sPass.setVolume(vol);
-			sPass.play();
+			game_scene.sPass.play();
 			game_scene.bgm.stop();
 			isOvered = true;
 		}
@@ -131,8 +127,7 @@ void Game::GameOver()
 	{
 		if (!isOvered)
 		{
-			sBoom.setVolume(vol);
-			sBoom.play();
+			game_scene.sBoom.play();
 			game_scene.bgm.stop();
 			isOvered = true;
 		}
@@ -148,7 +143,7 @@ void Game::GameOver()
 	bt_ok.show();
 }
 
-void Game::Updata()
+void Game::Update()
 {
 	if (OnStartScene)
 	{
@@ -180,11 +175,11 @@ void Game::Updata()
 		}
 		mine_rest = mine_num;
 		start_scene.tSkin = tSkin[skin_id];
-		start_scene.Updata();
+		start_scene.Update();
 	}
 	game_scene.tSkin = tSkin[skin_id];
 	game_scene.tBack = tBack[back_id];
-	game_scene.Updata();
+	game_scene.Update();
 	game_scene.mineCounter = mine_rest;
 }
 
@@ -199,9 +194,7 @@ void Game::SetMine()
 		{
 			i = rand() % this->game_scene.width;
 			j = rand() % this->game_scene.heigth;
-			if ((i == this->px && j == this->py) || this->game_scene.grid[i][j].isMineSetted || (i == this->px - 1 && j == this->py) || (i == this->px && j == this->py - 1)
-				|| (i == this->px + 1 && j == this->py) || (i == this->px && j == this->py + 1) || (i == this->px - 1 && j == this->py - 1) || (i == this->px + 1 && j == this->py + 1)
-				|| (i == this->px - 1 && j == this->py + 1) || (i == this->px + 1 && j == this->py - 1))
+			if ((i - this->px) * (i - this->px) + (j - this->py) * (j - this->py) <= 2)
 				continue;
 			else
 			{
@@ -303,7 +296,41 @@ void Game::Input_game_scene(Event& e)
 		{
 			for (int j = 0; j < game_scene.heigth; j++)
 			{
-				if (game_scene.grid[i][j].onClickLeft(e) && game_scene.grid[i][j].sta != FLA && !game_scene.grid[i][j].isClickOnce)
+				game_scene.grid[i][j].isReadyToShow = false;
+				int num = 0;
+				for (int m = i - 1; m <= i + 1; m++)
+				{
+					if (m < 0 || m>game_scene.width - 1)
+						continue;
+					for (int n = j - 1; n <= j + 1; n++)
+					{
+						if (n < 0 || n>game_scene.heigth - 1||(m==i&&n==j))
+							continue;
+						if (game_scene.grid[m][n].isPressLR&& game_scene.grid[i][j].sta == REV)
+							game_scene.grid[i][j].isReadyToShow = true;
+						if (game_scene.grid[m][n].sta == FLA || game_scene.grid[m][n].sta == WEN)
+							num++;
+					}
+				}
+				if (game_scene.grid[i][j].onCLickLR(e))
+				{
+					if (num == game_scene.grid[i][j].texture_id&& game_scene.grid[i][j].sta==FRO)
+					{
+						for (int m = i - 1; m <= i + 1; m++)
+						{
+							if (m < 0 || m>game_scene.width - 1)
+								continue;
+							for (int n = j - 1; n <= j + 1; n++)
+							{
+								if (n < 0 || n>game_scene.heigth - 1)
+									continue;
+								if (game_scene.grid[m][n].sta == REV)
+									game_scene.grid[m][n].sta = FRO;
+							}
+						}
+					}
+				}
+				else if (game_scene.grid[i][j].onClickLeft(e) && game_scene.grid[i][j].sta != FLA && !game_scene.grid[i][j].isClickOnce)
 				{
 					game_scene.grid[i][j].isClickOnce = true;
 					this->mouseClock.restart();
@@ -327,16 +354,18 @@ void Game::Input_game_scene(Event& e)
 					{
 						if (game_scene.grid[i][j].texture_id < 9 && game_scene.grid[i][j].sta == FRO)
 						{
-							int m, n;
-							game_scene.grid[i][j].sta = FRO;
-							game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][j].sta = game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][j].sta == REV ? FRO : game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][j].sta;
-							game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][j].sta = game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][j].sta == REV ? FRO : game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][j].sta;
-							game_scene.grid[i][n = (j - 1) < 0 ? 0 : (j - 1)].sta = game_scene.grid[i][n = (j - 1) < 0 ? 0 : (j - 1)].sta == REV ? FRO : game_scene.grid[i][n = (j - 1) < 0 ? 0 : (j - 1)].sta;
-							game_scene.grid[i][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta = game_scene.grid[i][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta == REV ? FRO : game_scene.grid[i][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta;
-							game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][n = (j - 1) < 0 ? 0 : (j - 1)].sta = game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][n = (j - 1) < 0 ? 0 : (j - 1)].sta == REV ? FRO : game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][n = (j - 1) < 0 ? 0 : (j - 1)].sta;
-							game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][n = (j - 1) < 0 ? 0 : (j - 1)].sta = game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][n = (j - 1) < 0 ? 0 : (j - 1)].sta == REV ? FRO : game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][n = (j - 1) < 0 ? 0 : (j - 1)].sta;
-							game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta = game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta == REV ? FRO : game_scene.grid[m = (i - 1) < 0 ? 0 : (i - 1)][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta;
-							game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta = game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta == REV ? FRO : game_scene.grid[m = (i + 1) > (game_scene.width - 1) ? (game_scene.width - 1) : (i + 1)][n = (j + 1) > (game_scene.heigth - 1) ? (game_scene.heigth - 1) : (j + 1)].sta;
+							for (int m = i-1; m <= i+1; m++)
+							{
+								if (m < 0||m>game_scene.width-1)
+									continue;
+								for (int n = j-1; n <= j+1; n++)
+								{
+									if (n < 0||n>game_scene.heigth-1)
+										continue;
+									if (game_scene.grid[m][n].sta == REV)
+										game_scene.grid[m][n].sta = FRO;
+								}
+							}
 						}
 						game_scene.grid[i][j].isClickOnce = false;
 						this->mouse_timer = 0;
@@ -455,7 +484,7 @@ void Game::Run()
 {
 	while ((*app).isOpen())
 	{
-		Updata();
+		Update();
 		Event e;
 		while ((*app).pollEvent(e))
 		{
@@ -485,10 +514,10 @@ void Game::Run()
 				Draw = &Game::draw_game_scene;
 			}
 			SetMine();
-			UpdataGrid(e);
+			UpdateGrid(e);
 		}
 		(this->*Draw)();
-		(this->*Input)(e); //输入一定要在绘制之后，因为这里设置只有绘制出来的按钮才能响应点击操作
+		(this->*Input)(e); 
 		(*app).display();
 	}
 }

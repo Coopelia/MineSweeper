@@ -51,17 +51,8 @@ void StartScene::Initial(RenderWindow* app)
 	this->menu_setting.addButton("data/images/Menu/ok.png", 400, 420, 0.5, 0.5);
 }
 
-void StartScene::Updata()
+void StartScene::Update()
 {
-	this->bt_Cancel.isActive = false;
-	this->bt_Enter.isActive = false;
-	this->bt_Exit.isActive = false;
-	this->bt_Ok.isActive = false;
-	this->bt_Setting.isActive = false;
-	for (int i = 0; i < this->menu_setting.num_button; i++)
-	{
-		this->menu_setting.button[i].isActive = false;
-	}
 	this->bgm.setVolume(vol);
 }
 
@@ -148,6 +139,14 @@ GameScene::GameScene()
 	sLv.setTexture(tLv);
 	bt_Back.setTextrue("data/images/btn_back0.png");
 	bt_Setting.setTextrue("data/images/hall_setting_btn0.png");
+	sbBoom.loadFromFile("data/Audios/bomb.wav");
+	sbPass.loadFromFile("data/Audios/pass.wav");
+	sBoom.setBuffer(sbBoom);
+	sBoom.setVolume(vol);
+	sBoom.setLoop(false);
+	sPass.setBuffer(sbPass);
+	sPass.setVolume(vol);
+	sPass.setLoop(false);
 	bgm.openFromFile("data/Audios/BGM02.ogg");
 	font.loadFromFile("data/font/oil.ttf");
 	bgm.setLoop(true);
@@ -189,13 +188,11 @@ void GameScene::Initial(RenderWindow* app)
 	this->menu_setting.addButton("data/images/Menu/ok.png", 480, 460, 0.5, 0.4);
 }
 
-void GameScene::Updata()
+void GameScene::Update()
 {
-	this->bt_Back.isActive = false;
-	this->bt_Setting.isActive = false;
 	this->dt_x = 430 - (this->width * this->gridSizeX) / 2;
 	this->dt_y = 300 - (this->heigth * this->gridSizeY) / 2;
-	this->myTimer.updata();
+	this->myTimer.update();
 	for (int i = 0; i < width; i++)
 	{
 		for (int j = 0; j < heigth; j++)
@@ -205,6 +202,8 @@ void GameScene::Updata()
 			this->grid[i][j].Init_texture(tSkin);
 		}
 	}
+	this->sPass.setVolume(vol);
+	this->sBoom.setVolume(vol);
 	this->bgm.setVolume(vol);
 }
 

@@ -26,7 +26,7 @@ private:
 	Texture tBack;
 	RenderWindow* app;
 	void Initial(RenderWindow* app);
-	void Updata();
+	void Update();
 	void DrawBack();
 	void DrawMenu();
 	void DrawExitLog();
@@ -43,9 +43,11 @@ public:
 	int mineCounter;
 	MyClock myTimer;
 	Grid grid[36][36];
+	Sound sBoom, sPass;
+	SoundBuffer sbBoom, sbPass;
 	GameScene();
 	void Initial(RenderWindow* app);
-	void Updata();
+	void Update();
 	void ReStart();
 	void DrawBack();
 	void DrawExitLog();

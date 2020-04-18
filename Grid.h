@@ -3,7 +3,7 @@
 
 class Grid
 {
-	//friend class Game;
+	friend class Game;
 	friend class GameScene;
 public:
 	Grid();
@@ -15,9 +15,12 @@ public:
 	bool RightPreBehRel;
 	bool isMineSetted;
 	bool isClickOnce;
+	bool isPressLR;
+	bool isReadyToShow;
 	bool onClickLeft(Event& e);
 	bool onClickRight(Event& e);
 	bool onClickDouble(Event& e);
+	bool onCLickLR(Event& e);
 	State sta;
 	int texture_id;
 private:

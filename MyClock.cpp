@@ -28,7 +28,7 @@ void MyClock::start()
 	this->isRun = true;
 }
 
-void MyClock::updata()
+void MyClock::update()
 {
 	this->endTime = clock();
 	if (this->isRun)

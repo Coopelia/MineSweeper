@@ -10,28 +10,27 @@ public:
 	GameScene game_scene;
 	bool OnStartScene;
 	bool OnPlayScene;
-	bool isOvered;
-	int mine_num;
-	int mine_rest;
-	int mine_counter;
-	int px, py;
-	int mouse_timer;
+	bool isOvered;//游戏是否已结束
+	int mine_num; //雷总数
+	int mine_rest; //显示的剩余雷数
+	int mine_counter;//被正确标为红旗的雷数
+	int px, py;//第一次点击的位置
+	int mouse_timer;//鼠标双击计时器
 	int gameOver;//0未结算，1胜利，2失败
 	int MineState;//0未开始布雷，1正在布雷，2布雷完毕
 	Clock mouseClock;
 	Button bt_ok, bt_restart;
 	Texture tOver, tSkin[6],tBack[7];
 	Sprite sOver;
-	Sound sBoom, sPass;
-	SoundBuffer sbBoom, sbPass;
-	Game(RenderWindow* app);
-	void SetMine();
-	void Updata();
-	void UpdataGrid(Event& e);
-	void GameOver();
-	void Run();
-	void (Game::* Input)(Event&);
-	void (Game::* Draw)();
+	Game();
+	~Game();
+	void SetMine(); //布雷
+	void Update(); //更新
+	void UpdateGrid(Event& e);//格子Logic
+	void GameOver(); //游戏结束
+	void Run(); //主控函数
+	void (Game::* Input)(Event&);//输入函数指针
+	void (Game::* Draw)();//绘制函数指针
 	void Input_start_scene(Event& e);
 	void Input_game_scene(Event& e);
 	void draw_start_scene();

@@ -11,7 +11,7 @@ public:
 	bool isRun;
 	clock_t beginTime, endTime;
 	MyClock();
-	void updata();
+	void update();
 	void start();
 	void stop();
 };

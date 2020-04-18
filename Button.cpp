@@ -18,8 +18,6 @@ void Button::setScale(float x, float y)
 
 bool Button::onClick(Event& e)
 {
-	if (!isActive)
-		return false;
 	bool flag = false;
 	FloatRect box = s.getGlobalBounds();
 	if (Mouse::getPosition(*app).x >= box.left && Mouse::getPosition(*app).x <= (box.left + box.width) && Mouse::getPosition(*app).y >= box.top && Mouse::getPosition(*app).y <= (box.top + box.height))
@@ -46,6 +44,5 @@ bool Button::onClick(Event& e)
 
 void Button::show()
 {
-	isActive = true;
 	(*app).draw(s);
 }

@@ -1,5 +1,5 @@
 #include"Grid.h"
-
+int jjj = 0;
 Grid::Grid()
 {
 	this->app = NULL;
@@ -12,6 +12,8 @@ Grid::Grid()
 	this->RightPreBehRel = false;
 	this->isMineSetted = false;
 	this->isClickOnce = false;
+	this->isPressLR = false;
+	this->isReadyToShow = false;
 	this->sta = REV;
 }
 
@@ -55,6 +57,11 @@ void Grid::show()
 	default:
 		break;
 	}
+	if (this->isReadyToShow)
+	{
+		this->s.setTexture(t);
+		this->s.setTextureRect(IntRect(13 * this->sizeX, 0, this->sizeX, this->sizeY));
+	}
 	(*this->app).draw(this->s);
 }
 
@@ -68,6 +75,11 @@ bool Grid::onClickRight(Event& e)
 	FloatRect box = s.getGlobalBounds();
 	if (Mouse::getPosition(*app).x >= box.left && Mouse::getPosition(*app).x <= (box.left + box.width) && Mouse::getPosition(*app).y >= box.top && Mouse::getPosition(*app).y <= (box.top + box.height))
 	{
+		if (isPressLR)
+		{
+			this->RightPreBehRel = false;
+			return false;
+		}
 		if (e.type == Event::MouseButtonPressed && e.mouseButton.button == Mouse::Right)
 			this->RightPreBehRel = true;
 		if (e.type == Event::MouseButtonReleased && e.mouseButton.button == Mouse::Right && this->RightPreBehRel)
@@ -87,6 +99,11 @@ bool Grid::onClickLeft(Event& e)
 	FloatRect box = s.getGlobalBounds();
 	if (Mouse::getPosition(*app).x >= box.left && Mouse::getPosition(*app).x <= (box.left + box.width) && Mouse::getPosition(*app).y >= box.top && Mouse::getPosition(*app).y <= (box.top + box.height))
 	{
+		if (isPressLR)
+		{
+			this->LeftPreBehRel = false;
+			return false;
+		}
 		if (e.type == Event::MouseButtonPressed && e.mouseButton.button == Mouse::Left)
 			this->LeftPreBehRel = true;
 		if (e.type == Event::MouseButtonReleased&& e.mouseButton.button == Mouse::Left && this->LeftPreBehRel)
@@ -103,6 +120,8 @@ bool Grid::onClickLeft(Event& e)
 
 bool Grid::onClickDouble(Event& e)
 {
+	if (isPressLR)
+		return false;
 	FloatRect box = s.getGlobalBounds();
 	if (Mouse::getPosition(*app).x >= box.left && Mouse::getPosition(*app).x <= (box.left + box.width) && Mouse::getPosition(*app).y >= box.top && Mouse::getPosition(*app).y <= (box.top + box.height))
 	{
@@ -113,4 +132,27 @@ bool Grid::onClickDouble(Event& e)
 	}
 	else
 		return false;
+}
+
+bool Grid::onCLickLR(Event& e)
+{
+	bool flag = false;
+	FloatRect box = s.getGlobalBounds();
+	if (Mouse::getPosition(*app).x >= box.left && Mouse::getPosition(*app).x <= (box.left + box.width) && Mouse::getPosition(*app).y >= box.top && Mouse::getPosition(*app).y <= (box.top + box.height))
+	{
+		if (Mouse::isButtonPressed(Mouse::Left)&&Mouse::isButtonPressed(Mouse::Right))
+			isPressLR = true;
+		else
+		{
+			if (isPressLR)
+				flag = true;
+			isPressLR = false;
+		}
+	}
+	else
+	{
+		isPressLR = false;
+		flag = false;
+	}
+	return flag;
 }

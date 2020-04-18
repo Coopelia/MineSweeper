@@ -8,9 +8,8 @@ class Button
 	friend class GameScene;
 	friend class Menu;
 public:
-	Button():app(NULL),isActive(false),PreBehRel(false) {};
-	bool isActive;
-	bool PreBehRel;
+	Button():app(NULL),PreBehRel(false) {};
+	bool PreBehRel;   //防止鼠标在按钮外面按住然后移到按钮上松开触发点击事件
 	void setTextrue(String s);
 	void setPosition(int x, int y);
 	void setScale(float x, float y);

@@ -11,6 +11,8 @@ public:
 	bool OnStartScene;
 	bool OnPlayScene;
 	bool isOvered;//游戏是否已结束
+	bool isDebug;//debug
+	State de_back[40][40];
 	int mine_num; //雷总数
 	int mine_rest; //显示的剩余雷数
 	int mine_counter;//被正确标为红旗的雷数
@@ -26,7 +28,7 @@ public:
 	~Game();
 	void SetMine(); //布雷
 	void Update(); //更新
-	void UpdateGrid(Event& e);//格子Logic
+	void UpdateGrid();//格子Logic
 	void GameOver(); //游戏结束
 	void Run(); //主控函数
 	void (Game::* Input)(Event&);//输入函数指针
@@ -35,4 +37,5 @@ public:
 	void Input_game_scene(Event& e);
 	void draw_start_scene();
 	void draw_game_scene();
+	void Debug();
 };

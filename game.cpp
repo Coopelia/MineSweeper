@@ -16,6 +16,7 @@ Game::Game()
 	this->OnStartScene = true;
 	this->OnPlayScene = false;
 	this->isOvered = false;
+	this->isDebug = false;
 	this->gameOver = 0;
 	this->MineState = 0;
 	tSkin[0].loadFromFile("data/images/Game1.jpg");
@@ -44,7 +45,7 @@ Game::~Game()
 	delete this->app;
 }
 
-void Game::UpdateGrid(Event& e)
+void Game::UpdateGrid()
 {
 	if (this->MineState == 2)
 	{
@@ -54,21 +55,14 @@ void Game::UpdateGrid(Event& e)
 			{
 				if (this->game_scene.grid[i][j].texture_id == 0 && this->game_scene.grid[i][j].sta == FRO)
 				{
-					if (i != 0)
+					for (int ii = i-1; ii <=i+1 ; ii++)
 					{
-						if (j != 0)
-							this->game_scene.grid[i - 1][j - 1].sta = FRO;
-						this->game_scene.grid[i - 1][j].sta = FRO;
-						this->game_scene.grid[i - 1][j + 1].sta = FRO;
+						for (int jj = j-1; jj <= j+1; jj++)
+						{
+							if (ii >= 0 && ii < game_scene.width && jj >= 0 && jj < game_scene.heigth && game_scene.grid[ii][jj].sta == REV)
+								game_scene.grid[ii][jj].sta = FRO;
+						}
 					}
-					if (j != 0)
-					{
-						this->game_scene.grid[i][j - 1].sta = FRO;
-						this->game_scene.grid[i + 1][j - 1].sta = FRO;
-					}
-					this->game_scene.grid[i + 1][j].sta = FRO;
-					this->game_scene.grid[i][j + 1].sta = FRO;
-					this->game_scene.grid[i + 1][j + 1].sta = FRO;
 				}
 			}
 		}
@@ -104,6 +98,32 @@ void Game::UpdateGrid(Event& e)
 			{
 				if (game_scene.grid[i][j].sta != FLA && game_scene.grid[i][j].texture_id == 9)
 					game_scene.grid[i][j].sta = FRO;
+			}
+		}
+	}
+}
+
+void Game::Debug()
+{
+	isDebug = !isDebug;
+	if (isDebug)
+	{
+		for (int i = 0; i < game_scene.width; i++)
+		{
+			for (int j = 0; j < game_scene.heigth; j++)
+			{
+				de_back[i][j] = game_scene.grid[i][j].sta;
+				game_scene.grid[i][j].sta = FRO;
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < game_scene.width; i++)
+		{
+			for (int j = 0; j < game_scene.heigth; j++)
+			{
+				game_scene.grid[i][j].sta = de_back[i][j];
 			}
 		}
 	}
@@ -282,6 +302,7 @@ void Game::Input_start_scene(Event& e)
 				skin_id = 0;
 		}
 	}
+	e.type = Event::Count;
 }
 
 void Game::Input_game_scene(Event& e)
@@ -292,99 +313,107 @@ void Game::Input_game_scene(Event& e)
 			game_scene.isOnExitLog = true;
 		if (game_scene.bt_Setting.onClick(e))
 			game_scene.isOnMenu = true;
-		for (int i = 0; i < game_scene.width; i++)
+		if (e.type == Event::EventType::KeyReleased && e.key.code == Keyboard::T)
 		{
-			for (int j = 0; j < game_scene.heigth; j++)
+			std::cout<<"debug!!!!!!!\n";
+			Debug();
+		}
+		if(!isDebug)
+		{
+			for (int i = 0; i < game_scene.width; i++)
 			{
-				game_scene.grid[i][j].isReadyToShow = false;
-				int num = 0;
-				for (int m = i - 1; m <= i + 1; m++)
+				for (int j = 0; j < game_scene.heigth; j++)
 				{
-					if (m < 0 || m>game_scene.width - 1)
-						continue;
-					for (int n = j - 1; n <= j + 1; n++)
+					game_scene.grid[i][j].isReadyToShow = false;
+					int num = 0;
+					for (int m = i - 1; m <= i + 1; m++)
 					{
-						if (n < 0 || n>game_scene.heigth - 1||(m==i&&n==j))
+						if (m < 0 || m>game_scene.width - 1)
 							continue;
-						if (game_scene.grid[m][n].isPressLR&& game_scene.grid[i][j].sta == REV)
-							game_scene.grid[i][j].isReadyToShow = true;
-						if (game_scene.grid[m][n].sta == FLA || game_scene.grid[m][n].sta == WEN)
-							num++;
-					}
-				}
-				if (game_scene.grid[i][j].onCLickLR(e))
-				{
-					if (num == game_scene.grid[i][j].texture_id&& game_scene.grid[i][j].sta==FRO)
-					{
-						for (int m = i - 1; m <= i + 1; m++)
+						for (int n = j - 1; n <= j + 1; n++)
 						{
-							if (m < 0 || m>game_scene.width - 1)
+							if (n < 0 || n>game_scene.heigth - 1 || (m == i && n == j))
 								continue;
-							for (int n = j - 1; n <= j + 1; n++)
-							{
-								if (n < 0 || n>game_scene.heigth - 1)
-									continue;
-								if (game_scene.grid[m][n].sta == REV)
-									game_scene.grid[m][n].sta = FRO;
-							}
+							if (game_scene.grid[m][n].isPressLR && game_scene.grid[i][j].sta == REV)
+								game_scene.grid[i][j].isReadyToShow = true;
+							if (game_scene.grid[m][n].sta == FLA || game_scene.grid[m][n].sta == WEN)
+								num++;
 						}
 					}
-				}
-				else if (game_scene.grid[i][j].onClickLeft(e) && game_scene.grid[i][j].sta != FLA && !game_scene.grid[i][j].isClickOnce)
-				{
-					game_scene.grid[i][j].isClickOnce = true;
-					this->mouseClock.restart();
-				}
-				else if (game_scene.grid[i][j].isClickOnce)
-				{
-					this->mouse_timer += this->mouseClock.getElapsedTime().asMilliseconds();
-					if (this->mouse_timer >= 800)
+					if (game_scene.grid[i][j].onCLickLR(e))
 					{
-						this->mouse_timer = 0;
-						game_scene.grid[i][j].sta = FRO;
-						game_scene.grid[i][j].isClickOnce = false;
-						if (this->MineState == 0)
+						if (num == game_scene.grid[i][j].texture_id && game_scene.grid[i][j].sta == FRO)
 						{
-							this->px = i;
-							this->py = j;
-							this->MineState = 1;
-						}
-					}
-					else if (game_scene.grid[i][j].onClickDouble(e))
-					{
-						if (game_scene.grid[i][j].texture_id < 9 && game_scene.grid[i][j].sta == FRO)
-						{
-							for (int m = i-1; m <= i+1; m++)
+							for (int m = i - 1; m <= i + 1; m++)
 							{
-								if (m < 0||m>game_scene.width-1)
+								if (m < 0 || m>game_scene.width - 1)
 									continue;
-								for (int n = j-1; n <= j+1; n++)
+								for (int n = j - 1; n <= j + 1; n++)
 								{
-									if (n < 0||n>game_scene.heigth-1)
+									if (n < 0 || n>game_scene.heigth - 1)
 										continue;
 									if (game_scene.grid[m][n].sta == REV)
 										game_scene.grid[m][n].sta = FRO;
 								}
 							}
 						}
-						game_scene.grid[i][j].isClickOnce = false;
-						this->mouse_timer = 0;
 					}
-				}
-				else if (game_scene.grid[i][j].onClickRight(e))
-				{
-					if (game_scene.grid[i][j].sta == REV)
+					else if (game_scene.grid[i][j].onClickLeft(e) && game_scene.grid[i][j].sta != FLA && !game_scene.grid[i][j].isClickOnce)
 					{
-						game_scene.grid[i][j].sta = FLA;
-						this->mine_rest--;
+						game_scene.grid[i][j].isClickOnce = true;
+						this->mouseClock.restart();
 					}
-					else if (game_scene.grid[i][j].sta == FLA)
+					else if (game_scene.grid[i][j].isClickOnce)
 					{
-						game_scene.grid[i][j].sta = WEN;
-						this->mine_rest++;
+						this->mouse_timer += this->mouseClock.getElapsedTime().asMilliseconds();
+						if (this->mouse_timer >= 500)
+						{
+							this->mouse_timer = 0;
+							game_scene.grid[i][j].sta = FRO;
+							game_scene.grid[i][j].isClickOnce = false;
+							if (this->MineState == 0)
+							{
+								this->px = i;
+								this->py = j;
+								this->MineState = 1;
+							}
+						}
+						else if (game_scene.grid[i][j].onClickDouble(e))
+						{
+							if (game_scene.grid[i][j].texture_id < 9 && game_scene.grid[i][j].sta == FRO)
+							{
+								for (int m = i - 1; m <= i + 1; m++)
+								{
+									if (m < 0 || m>game_scene.width - 1)
+										continue;
+									for (int n = j - 1; n <= j + 1; n++)
+									{
+										if (n < 0 || n>game_scene.heigth - 1)
+											continue;
+										if (game_scene.grid[m][n].sta == REV)
+											game_scene.grid[m][n].sta = FRO;
+									}
+								}
+							}
+							game_scene.grid[i][j].isClickOnce = false;
+							this->mouse_timer = 0;
+						}
 					}
-					else if (game_scene.grid[i][j].sta == WEN)
-						game_scene.grid[i][j].sta = REV;
+					else if (game_scene.grid[i][j].onClickRight(e))
+					{
+						if (game_scene.grid[i][j].sta == REV && mine_rest > 0)
+						{
+							game_scene.grid[i][j].sta = FLA;
+							this->mine_rest--;
+						}
+						else if (game_scene.grid[i][j].sta == FLA)
+						{
+							game_scene.grid[i][j].sta = WEN;
+							this->mine_rest++;
+						}
+						else if (game_scene.grid[i][j].sta == WEN)
+							game_scene.grid[i][j].sta = REV;
+					}
 				}
 			}
 		}
@@ -454,6 +483,7 @@ void Game::Input_game_scene(Event& e)
 			game_scene.scene_close();
 		}
 	}
+	e.type = Event::Count;
 }
 
 void Game::draw_start_scene()
@@ -507,17 +537,21 @@ void Game::Run()
 			{
 				MineState = 0;
 				mine_rest = mine_num;
+				isDebug = false;
 				start_scene.scene_close();
 				game_scene.gameStart();
 				game_scene.myTimer.start();
 				Input = &Game::Input_game_scene;
 				Draw = &Game::draw_game_scene;
 			}
-			SetMine();
-			UpdateGrid(e);
+			if (!isDebug)
+			{
+				SetMine();
+				UpdateGrid();
+			}
 		}
 		(this->*Draw)();
-		(this->*Input)(e); 
+		(this->*Input)(e);
 		(*app).display();
 	}
 }

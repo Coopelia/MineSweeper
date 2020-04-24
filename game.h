@@ -28,6 +28,10 @@ public:
 	~Game();
 	void SetMine(); //布雷
 	void Update(); //更新
+	void GridClickLeft(int i, int j);
+	void GridClickRight(int i, int j);
+	void GridClickDouble(int i, int j);
+	void GridClickLR(int i, int j);
 	void UpdateGrid();//格子Logic
 	void GameOver(); //游戏结束
 	void Run(); //主控函数

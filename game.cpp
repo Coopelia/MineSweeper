@@ -70,7 +70,6 @@ void Game::UpdateGrid()
 
 	if (gameOver == 0)
 	{
-		mine_counter = 0;
 		for (int i = 0; i < game_scene.width; i++)
 		{
 			for (int j = 0; j < game_scene.heigth; j++)
@@ -82,13 +81,24 @@ void Game::UpdateGrid()
 					i = game_scene.width;
 					break;
 				}
-				if (game_scene.grid[i][j].sta == FLA && game_scene.grid[i][j].texture_id == 9)
-					mine_counter++;
 			}
 		}
-		if (mine_counter == mine_num)
-			gameOver = 1;
 	}
+
+	bool flag = true;
+	for (int i = 0; i < game_scene.width; i++)
+	{
+		for (int j = 0; j < game_scene.heigth; j++)
+		{
+			if (game_scene.grid[i][j].sta !=FLA&&game_scene.grid[i][j].sta!=FRO )
+			{
+				flag = false;
+				break;
+			}
+		}
+	}
+	if (flag)
+		gameOver = 1;
 
 	if (gameOver == 2)
 	{
@@ -324,41 +334,10 @@ void Game::Input_game_scene(Event& e)
 			{
 				for (int j = 0; j < game_scene.heigth; j++)
 				{
-					game_scene.grid[i][j].isReadyToShow = false;
-					int num = 0;
-					for (int m = i - 1; m <= i + 1; m++)
-					{
-						if (m < 0 || m>game_scene.width - 1)
-							continue;
-						for (int n = j - 1; n <= j + 1; n++)
-						{
-							if (n < 0 || n>game_scene.heigth - 1 || (m == i && n == j))
-								continue;
-							if (game_scene.grid[m][n].isPressLR && game_scene.grid[i][j].sta == REV)
-								game_scene.grid[i][j].isReadyToShow = true;
-							if (game_scene.grid[m][n].sta == FLA || game_scene.grid[m][n].sta == WEN)
-								num++;
-						}
-					}
 					if (game_scene.grid[i][j].onCLickLR(e))
 					{
-						if (!game_scene.myTimer.isRun)
-							game_scene.myTimer.start();
-						if (num == game_scene.grid[i][j].texture_id && game_scene.grid[i][j].sta == FRO)
-						{
-							for (int m = i - 1; m <= i + 1; m++)
-							{
-								if (m < 0 || m>game_scene.width - 1)
-									continue;
-								for (int n = j - 1; n <= j + 1; n++)
-								{
-									if (n < 0 || n>game_scene.heigth - 1)
-										continue;
-									if (game_scene.grid[m][n].sta == REV)
-										game_scene.grid[m][n].sta = FRO;
-								}
-							}
-						}
+						GridClickLR(i, j);
+						break;
 					}
 					else if (game_scene.grid[i][j].onClickLeft(e) && game_scene.grid[i][j].sta != FLA && !game_scene.grid[i][j].isClickOnce)
 					{
@@ -366,59 +345,21 @@ void Game::Input_game_scene(Event& e)
 							game_scene.myTimer.start();
 						game_scene.grid[i][j].isClickOnce = true;
 						this->mouseClock.restart();
+						break;
 					}
 					else if (game_scene.grid[i][j].isClickOnce)
 					{
 						this->mouse_timer += this->mouseClock.getElapsedTime().asMilliseconds();
-						if (this->mouse_timer >= 500)
-						{
-							this->mouse_timer = 0;
-							game_scene.grid[i][j].sta = FRO;
-							game_scene.grid[i][j].isClickOnce = false;
-							if (this->MineState == 0)
-							{
-								this->px = i;
-								this->py = j;
-								this->MineState = 1;
-							}
-						}
+						if (this->mouse_timer >= 800)
+							GridClickLeft(i, j);
 						else if (game_scene.grid[i][j].onClickDouble(e))
-						{
-							if (game_scene.grid[i][j].texture_id < 9 && game_scene.grid[i][j].sta == FRO)
-							{
-								for (int m = i - 1; m <= i + 1; m++)
-								{
-									if (m < 0 || m>game_scene.width - 1)
-										continue;
-									for (int n = j - 1; n <= j + 1; n++)
-									{
-										if (n < 0 || n>game_scene.heigth - 1)
-											continue;
-										if (game_scene.grid[m][n].sta == REV)
-											game_scene.grid[m][n].sta = FRO;
-									}
-								}
-							}
-							game_scene.grid[i][j].isClickOnce = false;
-							this->mouse_timer = 0;
-						}
+							GridClickDouble(i, j);
+						break;
 					}
 					else if (game_scene.grid[i][j].onClickRight(e))
 					{
-						if (!game_scene.myTimer.isRun)
-							game_scene.myTimer.start();
-						if (game_scene.grid[i][j].sta == REV && mine_rest > 0)
-						{
-							game_scene.grid[i][j].sta = FLA;
-							this->mine_rest--;
-						}
-						else if (game_scene.grid[i][j].sta == FLA)
-						{
-							game_scene.grid[i][j].sta = WEN;
-							this->mine_rest++;
-						}
-						else if (game_scene.grid[i][j].sta == WEN)
-							game_scene.grid[i][j].sta = REV;
+						GridClickRight(i, j);
+						break;
 					}
 				}
 			}
@@ -490,6 +431,100 @@ void Game::Input_game_scene(Event& e)
 		}
 	}
 	e.type = Event::Count;
+}
+
+void Game::GridClickLeft(int i, int j)
+{
+	this->mouse_timer = 0;
+	game_scene.grid[i][j].sta = FRO;
+	game_scene.grid[i][j].isClickOnce = false;
+	if (this->MineState == 0)
+	{
+		this->px = i;
+		this->py = j;
+		this->MineState = 1;
+	}
+}
+
+void Game::GridClickRight(int i, int j)
+{
+	if (!game_scene.myTimer.isRun)
+		game_scene.myTimer.start();
+	if (game_scene.grid[i][j].sta == REV && mine_rest > 0)
+	{
+		game_scene.grid[i][j].sta = FLA;
+		this->mine_rest--;
+	}
+	else if (game_scene.grid[i][j].sta == FLA)
+	{
+		game_scene.grid[i][j].sta = WEN;
+		this->mine_rest++;
+	}
+	else if (game_scene.grid[i][j].sta == WEN)
+		game_scene.grid[i][j].sta = REV;
+}
+
+void Game::GridClickDouble(int i, int j)
+{
+	if (game_scene.grid[i][j].texture_id < 9 && game_scene.grid[i][j].sta == FRO)
+	{
+		for (int m = i - 1; m <= i + 1; m++)
+		{
+			if (m < 0 || m>game_scene.width - 1)
+				continue;
+			for (int n = j - 1; n <= j + 1; n++)
+			{
+				if (n < 0 || n>game_scene.heigth - 1)
+					continue;
+				if (game_scene.grid[m][n].sta == REV)
+					game_scene.grid[m][n].sta = FRO;
+			}
+		}
+	}
+	game_scene.grid[i][j].isClickOnce = false;
+	this->mouse_timer = 0;
+}
+
+void Game::GridClickLR(int i, int j)
+{
+	if (!game_scene.myTimer.isRun)
+		game_scene.myTimer.start();
+	game_scene.grid[i][j].isReadyToShow = false;
+	int num = 0;
+	for (int m = i - 1; m <= i + 1; m++)
+	{
+		if (m < 0 || m>game_scene.width - 1)
+			continue;
+		for (int n = j - 1; n <= j + 1; n++)
+		{
+			if (n < 0 || n>game_scene.heigth - 1 || (m == i && n == j))
+				continue;
+			if (game_scene.grid[m][n].sta == REV)
+			{
+				if(game_scene.grid[i][j].isPressLR)
+					game_scene.grid[m][n].isReadyToShow = true;
+				else
+					game_scene.grid[m][n].isReadyToShow = false;
+			}
+			if (game_scene.grid[m][n].sta == FLA)
+				num++;
+		}
+	}
+	if (num == game_scene.grid[i][j].texture_id && game_scene.grid[i][j].sta == FRO&&!game_scene.grid[i][j].isPressLR)
+	{
+		for (int m = i - 1; m <= i + 1; m++)
+		{
+			if (m < 0 || m>game_scene.width - 1)
+				continue;
+			for (int n = j - 1; n <= j + 1; n++)
+			{
+				if (n < 0 || n>game_scene.heigth - 1)
+					continue;
+				if (game_scene.grid[m][n].sta==REV)
+					game_scene.grid[m][n].sta = FRO;
+			}
+		}
+	}
 }
 
 void Game::draw_start_scene()

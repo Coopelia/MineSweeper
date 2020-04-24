@@ -2,13 +2,13 @@
 
 Game::Game()
 {
-	this->mine_num = 10; 
-	this->mine_rest = 10; 
-	this->mine_counter = 0; 
-	this->px = -1; 
+	this->mine_num = 10;
+	this->mine_rest = 10;
+	this->mine_counter = 0;
+	this->px = -1;
 	this->py = -1;
-	this->mouse_timer = 0; 
-	this->app = new RenderWindow(VideoMode(win_width, win_height), "MineSweeper",Uint32(5));
+	this->mouse_timer = 0;
+	this->app = new RenderWindow(VideoMode(win_width, win_height), "MineSweeper", Uint32(5));
 	this->bt_ok.app = app;
 	this->bt_restart.app = app;
 	this->game_scene.Initial(app);
@@ -55,9 +55,9 @@ void Game::UpdateGrid()
 			{
 				if (this->game_scene.grid[i][j].texture_id == 0 && this->game_scene.grid[i][j].sta == FRO)
 				{
-					for (int ii = i-1; ii <=i+1 ; ii++)
+					for (int ii = i - 1; ii <= i + 1; ii++)
 					{
-						for (int jj = j-1; jj <= j+1; jj++)
+						for (int jj = j - 1; jj <= j + 1; jj++)
 						{
 							if (ii >= 0 && ii < game_scene.width && jj >= 0 && jj < game_scene.heigth && game_scene.grid[ii][jj].sta == REV)
 								game_scene.grid[ii][jj].sta = FRO;
@@ -82,7 +82,7 @@ void Game::UpdateGrid()
 					i = game_scene.width;
 					break;
 				}
-				if (game_scene.grid[i][j].sta == FLA&&game_scene.grid[i][j].texture_id==9)
+				if (game_scene.grid[i][j].sta == FLA && game_scene.grid[i][j].texture_id == 9)
 					mine_counter++;
 			}
 		}
@@ -307,7 +307,7 @@ void Game::Input_start_scene(Event& e)
 
 void Game::Input_game_scene(Event& e)
 {
-	if (!game_scene.isOnExitLog && !game_scene.isOnMenu&&!gameOver)
+	if (!game_scene.isOnExitLog && !game_scene.isOnMenu && !gameOver)
 	{
 		if (game_scene.bt_Back.onClick(e))
 			game_scene.isOnExitLog = true;
@@ -315,10 +315,10 @@ void Game::Input_game_scene(Event& e)
 			game_scene.isOnMenu = true;
 		if (e.type == Event::EventType::KeyReleased && e.key.code == Keyboard::T)
 		{
-			std::cout<<"debug!!!!!!!\n";
+			std::cout << "debug!!!!!!!\n";
 			Debug();
 		}
-		if(!isDebug)
+		if (!isDebug)
 		{
 			for (int i = 0; i < game_scene.width; i++)
 			{
@@ -342,6 +342,8 @@ void Game::Input_game_scene(Event& e)
 					}
 					if (game_scene.grid[i][j].onCLickLR(e))
 					{
+						if (!game_scene.myTimer.isRun)
+							game_scene.myTimer.start();
 						if (num == game_scene.grid[i][j].texture_id && game_scene.grid[i][j].sta == FRO)
 						{
 							for (int m = i - 1; m <= i + 1; m++)
@@ -360,6 +362,8 @@ void Game::Input_game_scene(Event& e)
 					}
 					else if (game_scene.grid[i][j].onClickLeft(e) && game_scene.grid[i][j].sta != FLA && !game_scene.grid[i][j].isClickOnce)
 					{
+						if (!game_scene.myTimer.isRun)
+							game_scene.myTimer.start();
 						game_scene.grid[i][j].isClickOnce = true;
 						this->mouseClock.restart();
 					}
@@ -401,6 +405,8 @@ void Game::Input_game_scene(Event& e)
 					}
 					else if (game_scene.grid[i][j].onClickRight(e))
 					{
+						if (!game_scene.myTimer.isRun)
+							game_scene.myTimer.start();
 						if (game_scene.grid[i][j].sta == REV && mine_rest > 0)
 						{
 							game_scene.grid[i][j].sta = FLA;
@@ -540,7 +546,6 @@ void Game::Run()
 				isDebug = false;
 				start_scene.scene_close();
 				game_scene.gameStart();
-				game_scene.myTimer.start();
 				Input = &Game::Input_game_scene;
 				Draw = &Game::draw_game_scene;
 			}
